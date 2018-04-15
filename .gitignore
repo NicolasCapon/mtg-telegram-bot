@@ -1,0 +1,5 @@
+# ignore all logs
+*.log
+
+# ignore config file
+/mtg-telegram-bot/src/config.py
