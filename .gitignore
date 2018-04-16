@@ -3,3 +3,7 @@
 
 # ignore config file
 /mtg-telegram-bot/src/config.py
+
+# ignore self generated files
+mtg-telegram-bot/cockatrice/
+mtg-telegram-bot/images/

@@ -1,11 +1,12 @@
+import os
 import sys
 import datetime
 import scryfallAPI as scf
 from lxml import etree
 
-
 def get_cockatrice_file(set_code):
-    """Return a full xml file ready to go for cockatrice custom set foler"""
+    """Return a full xml file ready to go for cockatrice custom set folder
+       https://github.com/Cockatrice/Cockatrice/wiki/Custom-Cards-&-Sets#to-add-custom-sets-follow-these-steps"""
     xml_tree = etree.Element("cockatrice_carddatabase")
     xml_tree.set("version", "3")
     infos = "Automatically created by GeekStreamBot at {}".format(datetime.datetime.now())
@@ -18,12 +19,13 @@ def get_cockatrice_file(set_code):
     cards_tree = etree.SubElement(xml_tree, "cards")
     for card in scf.get_cards_list(edition):
         add_card_to_xml(cards_tree, card)
-    xml_filepath = "/home/pi/telegram/GeekStreamBot/cockatrice/{}.xml".format(set_code.upper())
+    xml_filename = "{}.xml".format(set_code.upper())
+    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cockatrice", xml_filename)#"/home/pi/telegram/GeekStreamBot/cockatrice/"
+    print(xml_filepath)
     tree = etree.ElementTree(xml_tree)
     tree.write(open(xml_filepath, 'wb'), xml_declaration=True, encoding='UTF-8')
     return xml_filepath
     
-
 def add_set_to_xml(xml_tree, edition):
     """Get cockatrice xml code from a scryfall set object"""
     # Main element set
@@ -65,13 +67,15 @@ def add_card_to_xml(xml_tree, card):
             xml_picURL.set("rarity", card.get("rarity", ""))
             xml_picURL.text = card["set"].upper()
             # manacost
-            xml_manacost = etree.SubElement(xml_card, "manacost")
-            xml_manacost.text = card_face.get("mana_cost").replace("{","").replace("}","")
+            manacost = card_face.get("mana_cost").replace("{","").replace("}","")
+            if manacost:
+                xml_manacost = etree.SubElement(xml_card, "manacost")
+                xml_manacost.text = manacost
             # converted mana cost
-            cmc = round(card_face.get("cmc",0))
-            xml_cmc = etree.SubElement(xml_card, "cmc")
-            if not cmc : cmc = ""
-            xml_cmc.text = str(cmc)
+            cmc = round(card_face.get("cmc", False))
+            if cmc : 
+                xml_cmc = etree.SubElement(xml_card, "cmc")
+                xml_cmc.text = str(cmc)
             # colors
             for color in card_face.get("colors",[]):
                 xml_color = etree.SubElement(xml_card, "color")
@@ -161,3 +165,5 @@ def add_card_to_xml(xml_tree, card):
             xml_loyalty.text = loyalty
 
     return True
+    
+get_cockatrice_file("RIX")
