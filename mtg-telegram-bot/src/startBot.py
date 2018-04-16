@@ -2,12 +2,14 @@
 import config
 import spoilerManager, messageManager, cockatriceManager
 import logging
-from telegram.ext import (Updater, Job)
+from telegram.ext import Updater
 
 def main():
-    """Initiate bot instance with all the functionnalities"""
+    """Initiate bot instance with all the functionalities"""
+    
     # Set up basic logging
-    logging.basicConfig(format='%(asctime)s %(message)s',filename='/home/pi/telegram/GeekStreamBot/traces/console.log',level=logging.DEBUG)
+    log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "log", "console.log")
+    logging.basicConfig(format='%(asctime)s %(message)s', filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
     # Create the EventHandler and pass it your bot's token.
@@ -32,6 +34,7 @@ def main():
     
 def error(bot, update, error):
     """Generic handler for errors"""
+    
     logger = logging.getLogger(__name__)
     logger.warn('Update "%s" caused error "%s"' % (update, error))
 

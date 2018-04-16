@@ -1,6 +1,5 @@
 import sys
 import logging
-sys.path.append("/home/pi/telegram/shared/sources")
 import myEnums
 import cockatriceAPI as cck
 import scryfallAPI as scf

@@ -1,14 +1,12 @@
-import praw
 import re
-import sys
+import os
 import time
 import json
+import praw
 import logging
 import scryfallAPI as scf
-import func_utils as fu
 import datetime
 import config
-from telegram import InputMediaPhoto
 from telegram.ext import CommandHandler
 
 class SpoilerManager:
@@ -24,7 +22,7 @@ class SpoilerManager:
         # self.chat_ID = 257145716 # Private chat
         self.chat_ID = config.chat_id # GeekStream chat
         
-        self.spoiler_file = '/home/pi/telegram/GeekStreamBot/spoilers/spoilers.json'
+        self.spoiler_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "spoilers", "spoilers.json")
         self.last_spoilers_review = ""
               
         self.reddit = self.log_to_reddit()

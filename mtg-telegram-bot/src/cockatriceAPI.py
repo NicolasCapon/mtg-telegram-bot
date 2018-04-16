@@ -9,7 +9,7 @@ def get_cockatrice_file(set_code):
        https://github.com/Cockatrice/Cockatrice/wiki/Custom-Cards-&-Sets#to-add-custom-sets-follow-these-steps"""
     xml_tree = etree.Element("cockatrice_carddatabase")
     xml_tree.set("version", "3")
-    infos = "Automatically created by GeekStreamBot at {}".format(datetime.datetime.now())
+    infos = "Automatically created by mtg-telegram-bot at {}".format(datetime.datetime.now())
     comment = etree.Comment(infos)
     xml_tree.insert(1, comment)
     edition = scf.get_set(set_code.lower())
@@ -20,7 +20,7 @@ def get_cockatrice_file(set_code):
     for card in scf.get_cards_list(edition):
         add_card_to_xml(cards_tree, card)
     xml_filename = "{}.xml".format(set_code.upper())
-    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cockatrice", xml_filename)#"/home/pi/telegram/GeekStreamBot/cockatrice/"
+    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cockatrice", xml_filename)
     print(xml_filepath)
     tree = etree.ElementTree(xml_tree)
     tree.write(open(xml_filepath, 'wb'), xml_declaration=True, encoding='UTF-8')
@@ -165,5 +165,3 @@ def add_card_to_xml(xml_tree, card):
             xml_loyalty.text = loyalty
 
     return True
-    
-get_cockatrice_file("RIX")
