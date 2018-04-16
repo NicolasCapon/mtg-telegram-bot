@@ -1,11 +1,8 @@
 # ignore all logs
 *.log
 
-# ignore config file
-/mtg-telegram-bot/src/config.py
-
 # ignore self generated files
-mtg-telegram-bot/cockatrice/
-mtg-telegram-bot/images/
+mtg-telegram-bot/cockatrice/*
+mtg-telegram-bot/images/*
 mtg-telegram-bot/src/__pycache__/
-mtg-telegram-bot/spoilers/
+mtg-telegram-bot/spoilers/*
