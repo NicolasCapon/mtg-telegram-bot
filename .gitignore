@@ -2,8 +2,6 @@
 *.log
 
 # ignore self generated files
-mtg-telegram-bot/cockatrice/*
-mtg-telegram-bot/images/*
 mtg-telegram-bot/src/__pycache__/
 
 # untrack changes from :
