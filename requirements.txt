@@ -2,17 +2,9 @@
 ####### telegram-requirements.txt #######
 #
 ###### Requirements without Version Specifiers ######
-mtgsdk
-pillow
-bs4
 datetime
 requests
-matplotlib
-numpy
-robobrowser
 unidecode
-reportlab
-requests_oauthlib
 #
 ###### Requirements with Version Specifiers ######
 #   See https://www.python.org/dev/peps/pep-0440/#version-specifiers
