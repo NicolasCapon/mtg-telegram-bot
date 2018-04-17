@@ -1,5 +1,4 @@
 import os
-import sys
 import datetime
 import scryfallAPI as scf
 from lxml import etree

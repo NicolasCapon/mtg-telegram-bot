@@ -1,8 +1,5 @@
-import sys
 import logging
-import myEnums
 import cockatriceAPI as cck
-import scryfallAPI as scf
 from telegram.ext import CommandHandler
 
 class CockatriceManager:

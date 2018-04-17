@@ -1,1 +1,11 @@
 Test install
+
+Translation
+
+budgetManager:
+detect members in chat
+create budget log file
+create dialog for transactions (transaction one to one or one to all)
+create alerts
+create resume
+reset budget

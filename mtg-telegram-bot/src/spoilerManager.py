@@ -5,6 +5,7 @@ import json
 import praw
 import logging
 import scryfallAPI as scf
+import botutils as bu
 import datetime
 import config
 from telegram.ext import CommandHandler
@@ -49,49 +50,6 @@ class SpoilerManager:
                              username=config.reddit_username)
         
         return reddit
-    
-    def start_reddit_stream(self, bot, job):
-        """Connect to reddit and start streaming all submission of magicTCG subreddit to detect spoilers
-           WARNING : Cause TimeOut exceptions after a random period of time"""
-
-        reddit = praw.Reddit(client_id=config.reddit_client_id,
-                             client_secret=config.reddit_client_secret,
-                             password=config.reddit_password,
-                             user_agent=config.reddit_user_agent,
-                             username=config.reddit_username)
-            
-        subreddit = reddit.subreddit('magicTCG')
-        logging.info("start streaming reddit...")
-        start_time = time.time()
-        # sub_ids = ["80d9ew"]#["7nlmye", "7nltgq", "7nv757", "7o32qx"]#, "7nln6c", "7hsqy5", "7eflae", "79n4vv", "7e93ed", "79o4r9", "7kodqn", "7n2c2n", "7cnuja"]
-        # for sub_id in sub_ids:
-            # submission = reddit.submission(id = sub_id)
-            # print(self.is_reddit_spoiler(submission))
-        for submission in subreddit.stream.submissions():
-            if submission.created_utc > start_time : 
-                logging.info("Reddit submission detected : {}".format(submission.id))
-            if submission.created_utc > start_time and self.is_reddit_spoiler(submission):
-                logging.info("Reddit spoiler detected : {}".format(submission.id))
-                link = "https://www.reddit.com" + submission.permalink
-                # robot : \U0001F916 magnifying glass : \U0001F50E See : https://unicode.org/emoji/charts/full-emoji-list.html
-                message = "Je crois que j'ai trouvé un spoiler ! \U0001F916\U0001F50E\n<a href='{}'>{}</a>".format(link, submission.title)
-                # If submission has preview image, send photo with caption of reddit link
-                if hasattr(submission, 'preview') :
-                    bot.sendMessage(chat_id=self.chat_ID,
-                                    text=message,
-                                    parse_mode="HTML",
-                                    disable_web_page_preview=True)
-                    image_url = submission.preview.get("images", [])[0].get("source").get("url")
-                    bot.sendPhoto(chat_id=self.chat_ID,
-                                  photo=image_url,
-                                  disable_notification=True)
-                                  
-                # Otherwise, send only the submission link
-                else:
-                    bot.sendMessage(chat_id=self.chat_ID,
-                                    text=message,
-                                    parse_mode="HTML",
-                                    disable_web_page_preview=True)
                                     
     def reddit_crawler(self, bot, job):
         """Crawl submissions of a subreddit to find a spoiler between now and the last run
@@ -99,7 +57,7 @@ class SpoilerManager:
         
         end_time = time.time()
         for submission in self.reddit.subreddit("magicTCG").new():
-            if submission.created_utc > self.last_reddit_review and self.is_reddit_spoiler(submission) and not is_reddit_duplicate(submission):                
+            if submission.created_utc > self.last_reddit_review and self.is_reddit_spoiler(submission) and not self.is_reddit_duplicate(submission):                
                 # Store submission id and transformed title for future duplicate detections
                 self.duplicate["sub_ids"].append(submission.id)
                 self.duplicate["sub_titles"].append(self.title_for_comp(submission.title))
@@ -265,7 +223,7 @@ class SpoilerManager:
                             disable_web_page_preview=True)
             # Loop in spoilers of specific set
             cardlist = [spoiler for spoiler in spoilers if spoiler.get("set", None) == set_code]
-            scf.send_cards_photos(cardlist, bot, self.chat_ID, disable_notification=True)
+            bu.send_cards_photos(cardlist, bot, self.chat_ID, disable_notification=True)
         
         # Add new spoilers to the spoiler track file
         with open(self.spoiler_file, 'w') as file:

@@ -1,8 +1,8 @@
 ﻿import re
 import logging
-import urllib.request
 from time import sleep
 import scryfallAPI as scf
+import botutils as bu
 from telegram.ext import MessageHandler, Filters
 
 class MessageManager():
@@ -38,7 +38,7 @@ class MessageManager():
                 cards.append(card)
             else:
                 notFound.append(cardname)
-        scf.send_cards_photos(cards, bot, chat_id)
+        bu.send_cards_photos(cards, bot, chat_id)
         
         # If cards were not found, send a informative message
         if notFound :
