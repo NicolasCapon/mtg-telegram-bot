@@ -40,7 +40,7 @@ class BudgetController():
         """Start point of the conversation to add a transaction"""
         # Remove entry point to avoid concurrent conversations
         self.dispatcher.remove_handler(self.transaction_conv_entry)
-        self.moneylender = update.message.from_user.id
+        self.moneylender = update.message.from_user
         # self.box_userName = update.message.from_user.first_name
         keyboard = []
         for member in self.budgetModel.members:
@@ -56,11 +56,8 @@ class BudgetController():
     def select_transaction_amount(self, bot, update):
         """Get the recipient id and ask for amount"""
         query = update.callback_query
-        for member in self.budgetModel.members:
-            if str(member["id"]) == query.data:
-                self.recipient = member
-                self.member_validation = [self.moneylender, self.recipient]
-                break
+        self.recipient = bu.get_member_by_id(int(query.data))
+        self.member_validation = [self.moneylender, self.recipient]
         
         message = "Combien te doit <b>{}</b> et pour quel motif ? (Envoie moi le montant, suivi ou non d'un motif)".format(self.recipient["first_name"])
         bot.editMessageText(text=message,
@@ -187,7 +184,6 @@ class BudgetController():
         """Start point of the conversation to archive all ongoing transactions between two players"""
         # Remove entry point to avoid concurrent conversations
         self.dispatcher.remove_handler(self.archiving_conv_entry)
-        self.requester = update.message.from_user.first_name
         # self.box_userName = update.message.from_user.first_name
         keyboard = []
         for member in self.budgetModel.members:

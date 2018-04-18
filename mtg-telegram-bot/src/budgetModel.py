@@ -16,7 +16,7 @@ class BudgetModel:
             if not member == member_1:
                 debt = self.get_debt_between_two_members(member_1, member)
                 if debt: debt_list.append(debt)
-        
+
         if debt_list: return debt_list
         else: return False
 
@@ -83,6 +83,13 @@ class BudgetModel:
         """Load all current transactions from file. Return a list of dict"""
         transactions = []
         return transactions
+       
+    def get_member_by_id(self, member_id):
+        """Return member object from int id"""
+        for member in self.members:
+            if member["id"] == id:
+                return member
+        return None
         
 bm = BudgetManager()
 Nicolas = {"first_name":"Nicolas", "id":1}
