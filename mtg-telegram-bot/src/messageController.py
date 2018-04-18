@@ -1,19 +1,19 @@
 ﻿import re
 import logging
 from time import sleep
-import scryfallAPI as scf
+import scryfallModel as scf
 import botutils as bu
 from telegram.ext import MessageHandler, Filters
 
-class MessageManager():
+class MessageController():
     """Class to handle every text message"""
     
     def __init__(self, updater):
-        """MessageManager constructor"""
+        """MessageController constructor"""
         # Create handler and add it to the dispatcher
         msg_h = MessageHandler(Filters.text, self.simple_message_handler)
         updater.dispatcher.add_handler(msg_h)
-        logging.info("MessageManager OK")
+        logging.info("MessageController OK")
 
     def simple_message_handler(self, bot, update):
         """Use regex to detect specific pattern in text message then apply specific function"""

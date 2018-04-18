@@ -1,4 +1,4 @@
-import scryfallAPI as scf
+import scryfallModel as scf
 from telegram import InputMediaPhoto
 
 def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):

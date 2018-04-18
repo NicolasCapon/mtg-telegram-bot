@@ -4,19 +4,19 @@ import time
 import json
 import praw
 import logging
-import scryfallAPI as scf
+import scryfallModel as scf
 import botutils as bu
 import datetime
 import config
 from telegram.ext import CommandHandler
 
-class SpoilerManager:
+class SpoilerController:
     """Class to detect and handle spoilers from different sources across the web:
        - https://www.reddit.com/r/magicTCG/
        - https://scryfall.com/"""
     
     def __init__(self, updater):
-        """Initialize SpoilerManager tasks
+        """Initialize SpoilerController tasks
            use a lot the job_queue mechanics 
            https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue"""
         
@@ -38,7 +38,7 @@ class SpoilerManager:
         spoilers_review_handler = CommandHandler("spoilers_review", self.spoilers_review_manual)
         updater.dispatcher.add_handler(spoilers_review_handler)
         
-        logging.info("SpoilerManager OK")
+        logging.info("SpoilerController OK")
     
     def log_to_reddit(self):
         """Log to reddit API and return a subreddit object"""

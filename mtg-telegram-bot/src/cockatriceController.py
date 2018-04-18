@@ -1,16 +1,16 @@
 import logging
-import cockatriceAPI as cck
+import cockatriceModel as cck
 from telegram.ext import CommandHandler
 
-class CockatriceManager:
+class CockatriceController:
     """Class to manage cockatrice files and stuffs
        See https://github.com/Cockatrice/Cockatrice/wiki"""
     
     def __init__(self, updater):
-        """CockatriceManager constructor """
+        """CockatriceController constructor """
         send_xml_handler = CommandHandler('cockatrice', self.send_xml, pass_args=True)
         updater.dispatcher.add_handler(send_xml_handler)
-        logging.info("CockatriceManager OK")
+        logging.info("CockatriceController OK")
         
     def send_xml(self, bot, update, args):
         """Send xml custom set file to chat

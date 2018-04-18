@@ -1,6 +1,6 @@
 ﻿# Import dependencies
 import config
-import spoilerManager, messageManager, cockatriceManager
+import spoilerController, messageController, cockatriceController
 import logging
 from telegram.ext import Updater
 
@@ -16,9 +16,9 @@ def main():
     updater = Updater(token=config.telegram_token)
     
     # Add features
-    messageManager.MessageManager(updater)
-    cockatriceManager.CockatriceManager(updater)
-    spoilerManager.SpoilerManager(updater)
+    messageController.MessageController(updater)
+    cockatriceController.CockatriceController(updater)
+    spoilerController.SpoilerController(updater)
     
     # log all errors
     updater.dispatcher.add_error_handler(error)

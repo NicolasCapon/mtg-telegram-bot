@@ -1,6 +1,6 @@
 import os
 import datetime
-import scryfallAPI as scf
+import scryfallModel as scf
 from lxml import etree
 
 def get_cockatrice_file(set_code):
