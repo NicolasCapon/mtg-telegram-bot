@@ -32,10 +32,10 @@ class BudgetModel:
         total_debt_dict = {}
         if total > 0:
             # print("{} doit {}€ à {}".format(member_1, round(abs(total), 2), member_2))
-            total_debt_dict =  {"global_moneylender":member_2, "global_recipient":member_1, "amount": round(abs(total), 2)}
+            total_debt_dict =  {"global_moneylender":member_2, "global_recipient":member_1, "global_amount": round(abs(total), 2)}
         elif total < 0:
             # print("{} doit {}€ à {}".format(member_2, round(abs(total), 2), member_1))
-            total_debt_dict = {"global_moneylender":member_1, "global_recipient":member_2, "amount": round(abs(total), 2)}
+            total_debt_dict = {"global_moneylender":member_1, "global_recipient":member_2, "global_amount": round(abs(total), 2)}
         
         return total_debt_dict
         
