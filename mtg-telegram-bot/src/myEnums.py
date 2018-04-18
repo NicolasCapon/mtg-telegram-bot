@@ -8,4 +8,5 @@ class TransactionConvStates(Enum):
     
 class ArchivingConvStates(Enum):
     """Enum for budgetController archiving Conversation"""
+    VERIFY_ARCHIVING = auto()
     CONFIRM_ARCHIVING = auto()
