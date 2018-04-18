@@ -1,5 +1,6 @@
 ﻿import logging
-import budgetModel as bu
+import budgetModel as bm
+import botutils as bu
 from myEnums import TransactionConvStates
 from telegram.ext import ConversationHandler
 
@@ -16,6 +17,7 @@ class BudgetController():
         self.moneylender, self.recipient, self.amount, self.reason, self.member_validation = {}, {}, None, "", []
         self.transaction_conv_entry = CommandHandler('new_debt', self.start_transaction_conv)
         self.dispatcher.add_handler(self.get_transaction_conversation)
+        
         # archive_transactions variables
         self.global_transaction = {}
         self.archiving_conv_entry = CommandHandler('new_debt', self.start_arch_transactions)
@@ -270,4 +272,3 @@ class BudgetController():
         self.reset_add_transaction_features()
 
         return ConversationHandler.END
-    

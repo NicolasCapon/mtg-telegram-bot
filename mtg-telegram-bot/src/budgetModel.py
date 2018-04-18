@@ -1,5 +1,6 @@
 import datetime
 import json
+import botutils as bu
 
 class BudgetModel:
     """Class to manage budget in a group of friend"""
@@ -73,23 +74,11 @@ class BudgetModel:
         self.transactions.append(transaction)
         
         return transaction
-        
-    def load_members(self):
-        """Load member list from file"""
-        members = [{"first_name":"Nicolas", "id":1}, {"first_name":"Remi", "id":1}, {"first_name":"Gauthier", "id":1}, {"first_name":"Greg", "id":1}]
-        return members
     
     def load_transactions(self):
         """Load all current transactions from file. Return a list of dict"""
         transactions = []
         return transactions
-       
-    def get_member_by_id(self, member_id):
-        """Return member object from int id"""
-        for member in self.members:
-            if member["id"] == id:
-                return member
-        return None
         
 bm = BudgetManager()
 Nicolas = {"first_name":"Nicolas", "id":1}
