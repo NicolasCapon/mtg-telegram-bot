@@ -42,14 +42,14 @@ def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):
     
     return True
     
-    def load_members(self):
-        """Load member list from file"""
-        members = [{"first_name":"Nicolas", "id":1}, {"first_name":"Remi", "id":1}, {"first_name":"Gauthier", "id":1}, {"first_name":"Greg", "id":1}]
-        return members
+def load_members(self):
+    """Load member list from file"""
+    members = [{"first_name":"Nicolas", "id":1}, {"first_name":"Remi", "id":1}, {"first_name":"Gauthier", "id":1}, {"first_name":"Greg", "id":1}]
+    return members
     
-    def get_member_by_id(member_id):
-        """Return member object from int id"""
-        for member in self.members:
-            if member["id"] == id:
-                return member
-        return None
+def get_member_by_id(member_id):
+    """Return member object from int id"""
+    for member in self.members:
+        if member["id"] == id:
+            return member
+    return None

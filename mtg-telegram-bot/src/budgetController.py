@@ -1,6 +1,7 @@
 ﻿import logging
 import budgetModel as bm
 import botutils as bu
+import config
 from myEnums import TransactionConvStates
 from telegram.ext import ConversationHandler
 
@@ -63,7 +64,7 @@ class BudgetController():
         
         message = "Combien te doit <b>{}</b> et pour quel motif ? (Envoie moi le montant, suivi ou non d'un motif)".format(self.recipient["first_name"])
         bot.editMessageText(text=message,
-                            chat_id=query.message.chat_id,
+                            chat_id=config.chat_id,
                             message_id=query.message.message_id,
                             parse_mode="HTML",
                             disable_notification=True)
@@ -80,7 +81,10 @@ class BudgetController():
             self.amount = round(int(amount), 2)
         except ValueError:
             message = "Je n'arrive pas à extraire, le montant et/ou le motif. Reformule moi ton message stp."
-            bot.sendMessage(update.message.chat_id, message)
+            bot.sendMessage(chat_id=config.chat_id,
+                            text=message,
+                            disable_notification=True)
+                            
             return TransactionConvStates.CONFIRM_TRANSACTION
         
         if self.reason:
@@ -122,7 +126,7 @@ class BudgetController():
                              InlineKeyboardButton("Annuler", callback_data='KO')]]
                 reply_markup = InlineKeyboardMarkup(keyboard)
                 bot.editMessageText(text=message,
-                                    chat_id=query.message.chat_id,
+                                    chat_id=config.chat_id,
                                     message_id=query.message.message_id,
                                     parse_mode="HTML",
                                     reply_markup=reply_markup,
@@ -136,7 +140,7 @@ class BudgetController():
                 message = "Dette ajoutée au registre !"
                 message += "\n<b>{}</b> doit <b>{}€</b> à <b>{}</b> (<b>{}</b>).".format(self.recipient, self.amount, self.moneylender, self.reason)
                 bot.editMessageText(text=message,
-                                    chat_id=query.message.chat_id,
+                                    chat_id=config.chat_id,
                                     message_id=query.message.message_id,
                                     parse_mode="HTML",
                                     disable_notification=True)
@@ -152,7 +156,7 @@ class BudgetController():
             message += "\n<b>{}</b> doit <b>{}€</b> à <b>{}</b> (<b>{}</b>).".format(self.recipient, self.amount, self.moneylender, self.reason)
             message += "\n Refus de {}.".format(query.from_user.id)
             bot.editMessageText(text=message,
-                                chat_id=query.message.chat_id,
+                                chat_id=config.chat_id,
                                 message_id=query.message.message_id,
                                 parse_mode="HTML",
                                 disable_notification=True)
@@ -208,9 +212,10 @@ class BudgetController():
             # Requester is the recipient and cannot archive ongoing transactions
             message = "Seul la personne ayant prêté de l'argent peut archiver des dettes. Demande à <b>{}</b> de faire ça pour toi.".format(self.global_transaction["global_moneylender"])
             bot.editMessageText(text=message,
-                                chat_id=query.message.chat_id,
+                                chat_id=config.chat_id,
                                 message_id=query.message.message_id,
-                                parse_mode="HTML")
+                                parse_mode="HTML",
+                                disable_notification=True)
             
             # Cleanup for next conversation
             self.reset_archiving_features()
@@ -224,10 +229,11 @@ class BudgetController():
             InlineKeyboardButton("Annuler", callback_data='KO')]]
             reply_markup = InlineKeyboardMarkup(keyboard)
             bot.editMessageText(text=message,
-                            chat_id=query.message.chat_id,
-                            message_id=query.message.message_id,
-                            reply_markup=reply_markup,
-                            parse_mode="HTML")
+                                chat_id=config.chat_id,
+                                message_id=query.message.message_id,
+                                reply_markup=reply_markup,
+                                parse_mode="HTML",
+                                disable_notification=True)
             
             return TransactionConvStates.CONFIRM_ARCHIVING
             
@@ -236,9 +242,10 @@ class BudgetController():
         if query.date == "OK":
             message = "J'ai bien archivé les dettes courantes de <b>{}</b> envers <b>{}</b> pour un montant total de <b>{}</b>.".format(self.global_transaction["global_recipient"],self.global_transaction["global_moneylender"], self.global_transaction["global_amount"])
             bot.editMessageText(text=message,
-                chat_id=query.message.chat_id,
+                chat_id=config.chat_id,
                 message_id=query.message.message_id,
-                parse_mode="HTML")
+                parse_mode="HTML",
+                disable_notification=False)
             
             # Cleanup for next conversation
             self.reset_archiving_features()
@@ -248,9 +255,10 @@ class BudgetController():
         else:
             message = "J'ai annulé ta demande d'archivage des dettes de <b>{}</b> envers <b>{}</b> pour un montant total de <b>{}</b>".format(self.global_transaction["global_recipient"],self.global_transaction["global_moneylender"], self.global_transaction["global_amount"])
             bot.editMessageText(text=message,
-                chat_id=query.message.chat_id,
+                chat_id=config.chat_id,
                 message_id=query.message.message_id,
-                parse_mode="HTML")
+                parse_mode="HTML",
+                disable_notification=True)
             
             # Cleanup for next conversation
             self.reset_archiving_features()

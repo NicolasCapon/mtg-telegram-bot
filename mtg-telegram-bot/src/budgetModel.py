@@ -7,7 +7,7 @@ class BudgetModel:
     
     def __init__(self):
         """Load unfinished transactions"""
-        self.members = self.load_members()
+        self.members = self.get_members()
         self.transactions = self.load_transactions()
 
     def get_total_debts(self, member_1):
