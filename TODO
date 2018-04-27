@@ -6,6 +6,21 @@ budgetManager:
 detect members in chat
 create budget log file
 create dialog for transactions (transaction one to one or one to all)
-create alerts
+create alerts ?
 create resume
 reset budget
+
+Score:
+- connection with decklist from google drive
+- DB SQLite:
+    TABLE USER: telegram_id, name, GD_dir_id...
+    TABLE GAME: id, format_id, date, winner_deck_id, winner_deck_zip_file, time, comment
+    TABLE DECK: id, name, format_id, player_id, date ?, GD_file_id
+    TABLE PLAYER: game_id, deck_id, is_winner, deck_zip_file
+    TABLE FORMAT: id, name, ban_list_zip or GD_id ?
+- dialogue for entering score :
+    . Select players and decks (first winner then loosers) (possibility to add deck manually just with a deck name)
+    . Add time and comments
+
+- Dash app for data visu
+

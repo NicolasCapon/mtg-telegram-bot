@@ -2,6 +2,7 @@
 import budgetModel as bm
 import botutils as bu
 import config
+import botFilters
 from myEnums import TransactionConvStates
 from telegram.ext import ConversationHandler
 
@@ -13,16 +14,17 @@ class BudgetController():
         self.budgetModel = bu.BudgetModel()
         
         self.dispatcher = updater.dispatcher
+        chat_filter = botFilters.ChatFilter(self.dispatcher)
         
         # add_transaction variables
         self.moneylender, self.recipient, self.amount, self.reason, self.member_validation = {}, {}, None, "", []
-        self.transaction_conv_entry = CommandHandler('new_debt', self.start_transaction_conv)
-        self.dispatcher.add_handler(self.get_transaction_conversation)
+        self.transaction_conv_entry = CommandHandler(filters=chat_filter, command='new_debt', callback=self.start_transaction_conv)
+        self.dispatcher.add_handler(self.get_transaction_conversation())
         
         # archive_transactions variables
         self.global_transaction = {}
-        self.archiving_conv_entry = CommandHandler('new_debt', self.start_arch_transactions)
-        self.dispatcher.add_handler(self.get_archive_conversation)
+        self.archiving_conv_entry = CommandHandler(filters=chat_filter, command='new_debt', callback=self.start_arch_transactions)
+        self.dispatcher.add_handler(self.get_archive_conversation())
         
     def get_transaction_conversation(self):
         """Create the transaction dialogue handler object"""
