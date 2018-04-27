@@ -11,7 +11,7 @@ class BudgetModel:
         self.transactions = self.load_transactions()
 
     def get_total_debts(self, member_1):
-        """Return all member debts among other members in group"""
+        """Return list of all member debts among other members in group"""
         debt_list = []
         for member in self.members:
             if not member == member_1:

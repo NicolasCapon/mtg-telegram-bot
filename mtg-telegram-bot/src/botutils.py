@@ -42,10 +42,16 @@ def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):
     
     return True
     
-# def load_members(self):
-    # """Load member list from file"""
-    # members = [{"first_name":"Nicolas", "id":1}, {"first_name":"Remi", "id":1}, {"first_name":"Gauthier", "id":1}, {"first_name":"Greg", "id":1}]
-    # return members
+def load_members():
+    """Load member list from users.json file"""
+    # TODO
+    return members
+
+def register_user(user):
+    """Save user to users.json file"""
+    # TODO
+    # Add GD_deck_dir empty field for google drive
+    return True
     
 # def get_member_by_id(member_id):
     # """Return member object from int id"""

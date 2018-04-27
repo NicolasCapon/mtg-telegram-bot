@@ -64,7 +64,7 @@ class SpoilerController:
                 
                 # Prepare message for chat
                 link = "https://www.reddit.com" + submission.permalink
-                message = "Je crois que j'ai trouvé un spoiler ! \U0001F916\U0001F50E\n\<a href='{}'>{}</a>".format(link, submission.title)
+                message = "Je crois que j'ai trouvé un spoiler ! \U0001F916\U0001F50E\n<a href='{}'>{}</a>".format(link, submission.title)
                 
                 # If submission has preview image, send photo with caption of reddit link
                 if hasattr(submission, 'preview') :

@@ -16,15 +16,20 @@ class BudgetController():
         self.dispatcher = updater.dispatcher
         chat_filter = botFilters.ChatFilter(self.dispatcher)
         
-        # add_transaction variables
+        # add_transaction
         self.moneylender, self.recipient, self.amount, self.reason, self.member_validation = {}, {}, None, "", []
         self.transaction_conv_entry = CommandHandler(filters=chat_filter, command='new_debt', callback=self.start_transaction_conv)
         self.dispatcher.add_handler(self.get_transaction_conversation())
         
-        # archive_transactions variables
+        # archive_transactions
         self.global_transaction = {}
-        self.archiving_conv_entry = CommandHandler(filters=chat_filter, command='new_debt', callback=self.start_arch_transactions)
+        self.archiving_conv_entry = CommandHandler(filters=chat_filter, command='archive_debt', callback=self.start_arch_transactions)
         self.dispatcher.add_handler(self.get_archive_conversation())
+        
+        # send user transaction resume
+        self.archiving_conv_entry = CommandHandler(filters=chat_filter, command='resume_debt', callback=self.send_user_debts)
+        
+        logging.info("BudgetController OK")
         
     def get_transaction_conversation(self):
         """Create the transaction dialogue handler object"""
@@ -240,6 +245,7 @@ class BudgetController():
             return TransactionConvStates.CONFIRM_ARCHIVING
             
     def send_archiving_confirmation(self, bot, update):
+        """Send resume of user actions after archiving"""
         query = update.callback_query
         if query.date == "OK":
             message = "J'ai bien archivé les dettes courantes de <b>{}</b> envers <b>{}</b> pour un montant total de <b>{}</b>.".format(self.global_transaction["global_recipient"],self.global_transaction["global_moneylender"], self.global_transaction["global_amount"])
@@ -266,7 +272,21 @@ class BudgetController():
             self.reset_archiving_features()
             
             return ConversationHandler.END
-
+    
+    def send_user_debts(self, bot, update):
+        """Send resume of debts implying requesting user"""
+        user = update.message.from_user
+        debts = self.budgetModel.get_total_debts()
+        if debts:
+            message = "Résumé des dettes te concernant:\n"
+            for debt in debts;
+                message += "{} doit un total de {}€ à {}.\n".format(debt["global_recipient"], debt["global_amount"], debt["global_moneylender"])
+        else:
+            message = "Tu n'as aucune dette pour le moment petit veinard."
+        
+        update.message.reply_text(message, parse_mode="HTML")
+        return True
+        
     def reset_archiving_features(self):
         """Reset archiving variables and conversation entry handler"""
         self.global_transaction = {}
