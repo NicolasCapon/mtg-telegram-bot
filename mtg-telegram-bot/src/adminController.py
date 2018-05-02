@@ -41,4 +41,4 @@ class AdminController():
         """Parse every message to detect new user"""
         user = update.message.from_user
         if not user in self.members:
-            botutils.register_user(user)
+            botutils.register_user(user=user, ref=self.members)

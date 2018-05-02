@@ -1,3 +1,4 @@
+import os
 import scryfallModel as scf
 from telegram import InputMediaPhoto
 
@@ -44,13 +45,24 @@ def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):
     
 def load_members():
     """Load member list from users.json file"""
-    # TODO
+    filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "users.json")
+    with open(filepath, 'r') as f:
+         members = json.load(f)
+    
     return members
 
-def register_user(user):
-    """Save user to users.json file"""
-    # TODO
+def register_user(user, ref):
+    """Add user to list of users and save list as users.json file"""
+    # transform user object to dict for storage
+    user_dict = user.__dict__
     # Add GD_deck_dir empty field for google drive
+    user_dict["GD_dir_id"] = ""
+    ref.append(user_dict)
+    
+    filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "users.json")
+    with open(filepath, 'w') as f:
+        json.dump(ref, f)
+    
     return True
     
 # def get_member_by_id(member_id):

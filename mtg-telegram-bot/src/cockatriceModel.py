@@ -12,17 +12,19 @@ def get_cockatrice_file(set_code):
     comment = etree.Comment(infos)
     xml_tree.insert(1, comment)
     edition = scf.get_set(set_code.lower())
+    
     # Check if set exists
     if not edition: return False
     add_set_to_xml(xml_tree, edition)
     cards_tree = etree.SubElement(xml_tree, "cards")
     for card in scf.get_cards_list(edition):
         add_card_to_xml(cards_tree, card)
+    
     xml_filename = "{}.xml".format(set_code.upper())
-    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "cockatrice", xml_filename)
-    print(xml_filepath)
+    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "cockatrice", xml_filename)
     tree = etree.ElementTree(xml_tree)
     tree.write(open(xml_filepath, 'wb'), xml_declaration=True, encoding='UTF-8')
+    
     return xml_filepath
     
 def add_set_to_xml(xml_tree, edition):

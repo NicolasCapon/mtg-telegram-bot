@@ -6,8 +6,8 @@ class BudgetModel:
     """Class to manage budget in a group of friend"""
     
     def __init__(self):
-        """Load unfinished transactions"""
-        self.members = self.get_members()
+        """Load members and unfinished transactions"""
+        self.members = bu.load_members()
         self.transactions = self.load_transactions()
 
     def get_total_debts(self, member_1):
@@ -32,10 +32,8 @@ class BudgetModel:
         
         total_debt_dict = {}
         if total > 0:
-            # print("{} doit {}€ à {}".format(member_1, round(abs(total), 2), member_2))
             total_debt_dict =  {"global_moneylender":member_2, "global_recipient":member_1, "global_amount": round(abs(total), 2)}
         elif total < 0:
-            # print("{} doit {}€ à {}".format(member_2, round(abs(total), 2), member_1))
             total_debt_dict = {"global_moneylender":member_1, "global_recipient":member_2, "global_amount": round(abs(total), 2)}
         
         return total_debt_dict
@@ -54,15 +52,16 @@ class BudgetModel:
         
         if not arch_transactions: return False
         
+        # Archive creation
         archive_date = datetime.datetime.now()
         archive = {"transactions":arch_transactions, "archive_date":archive_date.strftime("%d-%m-%Y %H:%M:%S"), "members":members}
-        filepath = "/home/pi/telegram/GeekStreamBot/traces/{}-{}_{}.json".format(member_1, member_2, archive_date.strftime("%d%m%Y"))
-        # Write down archived transactions
-        with open(filepath, 'w') as f:
-            json.dump(archive, f)
+        filename = "archive_{}.json".format(archive_date.strftime("Y%m%d-%H%M%S"))
+        filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", filename)
+        self.dump_transactions(content=archive, filepath=filepath)
         
         # Update transactions list by removing archived transactions
         self.transactions = left_transactions
+        self.dump_transactions()
         
         return archive
         
@@ -71,26 +70,23 @@ class BudgetModel:
         if amount < 0 : return False
         tr_date = datetime.datetime.now()
         transaction = {"moneylender":moneylender, "recipient":recipient, "amount":round(amount, 2), "reason":reason, "date":tr_date.strftime("%d-%m-%Y %H:%M:%S")}
+        
         self.transactions.append(transaction)
+        self.dump_transactions()
         
         return transaction
     
     def load_transactions(self):
         """Load all current transactions from file. Return a list of dict"""
-        transactions = []
+        filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", "transactions.json")
+        with open(filepath, 'r') as f:
+            transactions = json.load(f)
+
         return transactions
         
-bm = BudgetManager()
-Nicolas = {"first_name":"Nicolas", "id":1}
-Remi = {"first_name":"Remi", "id":1}
-Gauthier = {"first_name":"Gauthier", "id":1}
-bm.add_transaction(Nicolas, "Remi", 3, "1 booster")
-bm.add_transaction(Remi, Nicolas, 2.5555, "1 card")
-bm.add_transaction(Remi, Nicolas, 1.33333, "1 card")
-bm.add_transaction(Remi, Nicolas, 2, "1 card")
-bm.add_transaction(Remi, Gauthier, 2, "1 card")
-bm.get_debt_between_two_members(Nicolas, Remi)
-bm.get_debt_between_two_members(Gauthier, Remi)
-bm.add_transaction(Nicolas, Remi, 3, "1 booster")
-bm.get_debt_between_two_members(Nicolas, Remi)
-print(bm.get_total_debts(Remi))
+    def dump_transactions(content=self.transactions, filepath=os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", "transactions.json")):
+        """Save current transactions to json file"""
+        with open(filepath, 'w') as f:
+            json.dump(content, f)
+        
+        return True
