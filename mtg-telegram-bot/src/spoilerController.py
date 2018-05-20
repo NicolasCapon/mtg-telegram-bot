@@ -23,7 +23,7 @@ class SpoilerController:
         # self.chat_ID = 257145716 # Private chat
         self.chat_ID = config.chat_id # GeekStream chat
         
-        self.spoiler_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "spoilers.json")
+        self.spoiler_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "spoilers.json")
         self.last_spoilers_review = ""
               
         self.reddit = self.log_to_reddit()

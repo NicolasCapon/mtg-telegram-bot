@@ -3,6 +3,8 @@ import logging
 from time import sleep
 import scryfallModel as scf
 import botutils as bu
+import config
+from botFilters import CardImageFilter
 from telegram.ext import MessageHandler, Filters
 
 class MessageController():
@@ -10,24 +12,17 @@ class MessageController():
     
     def __init__(self, updater):
         """MessageController constructor"""
+        self.card_regex = re.compile('\{0}(.*?)\{0}'.format(config.card_char))
+        card_image_filter = CardImageFilter(self.card_regex)
         # Create handler and add it to the dispatcher
-        msg_h = MessageHandler(Filters.text, self.simple_message_handler)
-        updater.dispatcher.add_handler(msg_h)
+        card_detection_handler = MessageHandler(Filters.text & card_image_filter, self.simple_message_handler)
+        updater.dispatcher.add_handler(card_detection_handler)
         logging.info("MessageController OK")
 
     def simple_message_handler(self, bot, update):
-        """Use regex to detect specific pattern in text message then apply specific function"""
-        answer = update.message.text
-        self.image_filter(answer, bot, update)
-        return True 
-        
-    def image_filter(self, text, bot, update):
         """Use regex to find each word between special_char in a text message then send photo(s)"""
-        special_char = "*"
-        # construct regex
-        p = re.compile('\{0}(.*?)\{0}'.format(special_char))
         # find all words between special_char
-        cardnames = p.findall(text)
+        cardnames = self.card_regex.findall(update.message.text)
         
         userName = update.message.from_user.first_name
         chat_id = update.message.chat_id

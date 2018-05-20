@@ -8,11 +8,10 @@ class ScoreModel:
     
     def __init__(self):
         """ScoreModel constructor"""
-       self.members = bu.load_members()
-       self.database = 
-       self.create_DB()
+       self.database = ""
+       self.create_DB() # A mettre dans une command init du bot
        
-    def add_score(self, winner_deck, looser_decks, time, comment):
+    def add_score(self, winner_deck_id, loosers_deck_ids ,format_id, time, comment):
         
         conn = sqlite3.connect(self.database)
         c = conn.cursor()
@@ -20,7 +19,7 @@ class ScoreModel:
         # Insert new game
         try:                                                                         
             c.execute("""INSERT INTO game(format_id, date, time, comment) 
-               VALUES (?,?,?,?);""", (set_code, datetime.datetime.now(), time, comment))
+               VALUES (?,?,?,?);""", (format_id, datetime.datetime.now(), time, comment))
             game_id = c.lastrowid
         except sqlite3.Error as e:
             logging.info("An SQL error [{}] occurred while inserting game".format(e))
@@ -30,19 +29,19 @@ class ScoreModel:
         # Insert winner deck and result
         try:
             c.execute("""INSERT INTO player(deck_id, game_id, is_winner) 
-               VALUES (?,?,?);""", (winner_deck, game_id, 1))
+               VALUES (?,?,?);""", (winner_deck_id, game_id, 1))
         except sqlite3.Error as e:
-            logging.info("An SQL error [{}] occurred while inserting game".format(e))
+            logging.info("An SQL error [{}] occurred while inserting winner_deck_id {}".format(e, winner_deck_id))
             conn.close()
             return False
         
-        # Insert looser decks and result
-        for looser_deck in looser_decks:
+        # Insert loosers deck and result
+        for looser_deck_id in loosers_deck_ids:
             try:
                 c.execute("""INSERT INTO player(deck_id, game_id, is_winner) 
-                   VALUES (?,?,?);""", (looser_deck, game_id, 0))
+                   VALUES (?,?,?);""", (looser_deck_id, game_id, 0))
             except sqlite3.Error as e:
-                logging.info("An SQL error [{}] occurred while inserting game".format(e))
+                logging.info("An SQL error [{}] occurred while inserting looser_deck_id {}".format(e, looser_deck_id))
                 conn.close()
                 return False
         
@@ -76,6 +75,8 @@ class ScoreModel:
                        VALUES (?,?,?);""", (member["id"], member["first_name"], member["GD_dir_id"]))
                 except sqlite3.Error as e:
                     logging.info("An SQL error [{}] occurred while inserting person {}.".format(e, member))
+        # Update is_active status for old members
+        # TODO : get all members id and change status of every other person to is_active=0
         
         # get all formats from local file and try to insert
         formats = self.load_formats()
@@ -91,7 +92,7 @@ class ScoreModel:
         # get all decks from Google Drive and insert via file_id
         db_gd_deck_ids = c.execute("SELECT GD_file_id FROM deck").fetchall()
         for member in members:
-            decks = [] # Load list of file for each deck in member GD directory
+            decks = [] # TODO: Load list of file for each deck in member GD directory
             for deck in decks:
                 if not deck["id"] in db_gd_deck_ids:
                     try:
@@ -99,6 +100,8 @@ class ScoreModel:
                            VALUES (?,?,?);""", (member["id"], deck["title"], deck["id"]))
                     except sqlite3.Error as e:
                         logging.info("An SQL error [{}] occurred while inserting format {}.".format(e, format))
+            # Update is_active status for old decks
+            # TODO : get all current decks id and change status of every other decks to is_active=0
         
         conn.commit()   
         conn.close()

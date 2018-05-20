@@ -1,6 +1,6 @@
-﻿# Import dependencies
+﻿import os
 import config
-import spoilerController, messageController, cockatriceController
+import spoilerController, messageController, cockatriceController, budgetController, adminController
 import logging
 from telegram.ext import Updater
 
@@ -8,7 +8,7 @@ def main():
     """Initiate bot instance with all the functionalities"""
     
     # Set up basic logging
-    log_file = os.path.join(os.path.dirname(os.path.dirname(__file__)), "log", "console.log")
+    log_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "log", "console.log")
     logging.basicConfig(format='%(asctime)s %(message)s', filename=log_file, level=logging.DEBUG)
     logger = logging.getLogger(__name__)
     
@@ -16,9 +16,11 @@ def main():
     updater = Updater(token=config.telegram_token)
     
     # Add features
+    adminController.AdminController(updater)
     messageController.MessageController(updater)
     cockatriceController.CockatriceController(updater)
     spoilerController.SpoilerController(updater)
+    budgetController.BudgetController(updater)
     
     # log all errors
     updater.dispatcher.add_error_handler(error)
@@ -26,6 +28,7 @@ def main():
     # Start the Bot
     updater.start_polling()
     logger.info("GeekstreamBot started")
+    print("OK")
     
     # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
     # SIGTERM or SIGABRT. This should be used most of the time, since

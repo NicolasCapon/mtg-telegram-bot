@@ -1,0 +1,7 @@
+Send this message to BotFather in order to edit available commands for the bot:
+
+new_debt - add debt for user
+archive_debt - archive all debts between users
+resume_debt - summarize all your debts
+spoilers_review - check for new spoilers
+cockatrice - specify set_code to get xml

@@ -21,7 +21,7 @@ def get_cockatrice_file(set_code):
         add_card_to_xml(cards_tree, card)
     
     xml_filename = "{}.xml".format(set_code.upper())
-    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "cockatrice", xml_filename)
+    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "cockatrice", xml_filename)
     tree = etree.ElementTree(xml_tree)
     tree.write(open(xml_filepath, 'wb'), xml_declaration=True, encoding='UTF-8')
     

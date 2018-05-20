@@ -1,6 +1,7 @@
 # mtg-telegram-bot
 
 mtg-telegram-bot is a chat bot for Magic the Gathering fans who used [Telegram](https://telegram.org/).
+The project is based on [python_telegram_bot](https://python-telegram-bot.org/), a telegram API wrapper.
 
 ## Features
 * Surround your card names by "*" and get images directly in chat 

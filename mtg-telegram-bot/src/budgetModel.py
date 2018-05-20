@@ -1,3 +1,4 @@
+import os
 import datetime
 import json
 import botutils as bu
@@ -18,8 +19,7 @@ class BudgetModel:
                 debt = self.get_debt_between_two_members(member_1, member)
                 if debt: debt_list.append(debt)
 
-        if debt_list: return debt_list
-        else: return False
+        return debt_list
 
     def get_debt_between_two_members(self, member_1, member_2):
         """Calculate the total of all debt between two members. Take member_1 as reference"""
@@ -55,8 +55,8 @@ class BudgetModel:
         # Archive creation
         archive_date = datetime.datetime.now()
         archive = {"transactions":arch_transactions, "archive_date":archive_date.strftime("%d-%m-%Y %H:%M:%S"), "members":members}
-        filename = "archive_{}.json".format(archive_date.strftime("Y%m%d-%H%M%S"))
-        filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", filename)
+        filename = "archive_{}.json".format(archive_date.strftime("%d%m%Y-%Hh%Mm%Ss"))
+        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "budget", filename)
         self.dump_transactions(content=archive, filepath=filepath)
         
         # Update transactions list by removing archived transactions
@@ -78,14 +78,21 @@ class BudgetModel:
     
     def load_transactions(self):
         """Load all current transactions from file. Return a list of dict"""
-        filepath = os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", "transactions.json")
+        filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "budget", "transactions.json")
         with open(filepath, 'r') as f:
             transactions = json.load(f)
 
         return transactions
         
-    def dump_transactions(content=self.transactions, filepath=os.path.join(os.path.dirname(os.path.dirname(__file__)), "tools", "budget", "transactions.json")):
+    def update_members(self):
+        """Update list of members if new ones are added on the go"""
+        members = bu.load_members()
+        self.members = members
+        return members
+        
+    def dump_transactions(self, content=None, filepath=os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "budget", "transactions.json")):
         """Save current transactions to json file"""
+        if content is None: content = self.transactions
         with open(filepath, 'w') as f:
             json.dump(content, f)
         
