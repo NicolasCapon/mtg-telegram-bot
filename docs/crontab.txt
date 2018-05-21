@@ -1,0 +1,4 @@
+# Edit crontab file :
+crontab -e
+# Write following line in crontab file then save:
+0 0 * * *  /home/pi/mtg-telegram-bot-test/mtg-telegram-bot/src/batch/clear_log.sh

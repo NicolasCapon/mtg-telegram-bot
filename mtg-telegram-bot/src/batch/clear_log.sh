@@ -1,6 +1,7 @@
 #!/bin/bash
 now=$(date --date="yesterday" +"%d-%m-%Y")
-path=$PWD/${PWD##*/}/log
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+path="$(dirname "$(dirname "$DIR")")"/log
 filename=/console.log
 filepath=$path$filename
 
