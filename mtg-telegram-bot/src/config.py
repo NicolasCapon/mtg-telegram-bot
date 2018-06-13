@@ -1,6 +1,8 @@
 # Telegram bot
 telegram_token = ""
 chat_id = 0
+spoiler_review_timer = 3600 * 24
+reddit_crawler_timer = 60*2
 
 # Pattern char to recognize cards in chat
 card_char = "*"

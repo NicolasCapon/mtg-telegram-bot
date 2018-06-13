@@ -4,11 +4,13 @@ import time
 import json
 import praw
 import logging
+import traceback
 import scryfallModel as scf
 import botutils as bu
 import datetime
 import config
 from telegram.ext import CommandHandler
+from telegram.error import (TelegramError, TimedOut, NetworkError)
 
 class SpoilerController:
     """Class to detect and handle spoilers from different sources across the web:
@@ -31,9 +33,8 @@ class SpoilerController:
         self.duplicate = {"sub_ids":[], "sub_titles":[]}
         
         # Add functionalities
-        # Too many TimeOut Exceptions : updater.job_queue.run_once(self.start_reddit_stream, 0)
-        updater.job_queue.run_repeating(self.spoilers_review_auto, interval=3600*12, first=0)
-        updater.job_queue.run_repeating(self.reddit_crawler, interval=60*2, first=0)
+        updater.job_queue.run_repeating(self.spoilers_review_auto, interval=config.spoiler_review_timer, first=0)
+        updater.job_queue.run_repeating(self.reddit_crawler, interval=config.reddit_crawler_timer, first=0)
         updater.job_queue.run_repeating(self.reset_duplicates, interval=86400*7, first=0) # Reset spoilers duplicate memory every week
         spoilers_review_handler = CommandHandler("spoilers_review", self.spoilers_review_manual)
         updater.dispatcher.add_handler(spoilers_review_handler)
@@ -122,7 +123,7 @@ class SpoilerController:
             # recurring codes that don't correspond to a Magic set
             unwanted_codes = ["rpl","edh","tcc","psa","cfb","diy","d&d",
                               "b&r","rob","wmc","gds","abc","art","lsv",
-                              "til","fun","lrr"]
+                              "til","fun","lrr","wip"]
             
             # submission title contain 3 letters in between brackets that doesn't match an old set code
 
@@ -217,10 +218,16 @@ class SpoilerController:
                 message = 'Résumé des spoilers <a href="{}">{}</a> [\U0001F5D3J-{}]'.format(edition.get("scryfall_uri", ""), edition.get("name", ""), countdown)
             else: 
                 message = 'Résumé des spoilers <a href="{}">{}</a> !'.format(edition.get("scryfall_uri", ""), edition.get("name", ""))
-            bot.sendMessage(chat_id=self.chat_ID,
-                            text=message,
-                            parse_mode="HTML",
-                            disable_web_page_preview=True)
+            try:
+                bot.sendMessage(chat_id=self.chat_ID,
+                                text=message,
+                                parse_mode="HTML",
+                                disable_web_page_preview=True)
+            except (TimedOut, TelegramError, NetworkError) as e:
+                logging.error('A TimeOut or TelegramError exception occurred: {}'.format(e))
+            except:
+                e = sys.exc_info()[0]
+                logging.error('An exception occurred: {}'.format(e))
             # Loop in spoilers of specific set
             cardlist = [spoiler for spoiler in spoilers if spoiler.get("set", None) == set_code]
             bu.send_cards_photos(cardlist, bot, self.chat_ID, disable_notification=True)
