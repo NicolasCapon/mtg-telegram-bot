@@ -35,15 +35,10 @@ def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):
 					# Warning : Sleep can cause some timeout issues
                     sleep(3)
                 except:
-                    error_msg = "ERROR while sending photo with url={}".format(card["url"])
-                    logging.info(error_msg)
-                    message = "Je n'arrive pas envoyer la photo de cette carte mais voici le lien : <a href='{}'>{}</a>.".format(card["url"], card["name"])
-                    bot.sendMessage(chat_id=chat_id,
-                                    text=message,
-                                    parse_mode="HTML",
-                                    disable_web_page_preview=True)
-        
-    
+                    logging.info("ERROR while sending photo with url={}".format(card.get("url", None)))
+                    message = "Je n'arrive pas envoyer la photo de cette carte mais voici le lien : <a href='{}'>{}</a>.".format(card.get("url", None), card.get("name", None))
+                    bot.sendMessage(chat_id=chat_id, text=message, parse_mode="HTML", disable_web_page_preview=True)
+
     return True
     
 def load_members():

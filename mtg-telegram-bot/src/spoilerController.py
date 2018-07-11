@@ -4,12 +4,13 @@ import time
 import json
 import praw
 import logging
-import traceback
 import scryfallModel as scf
 import botutils as bu
 import datetime
 import config
-from telegram.ext import CommandHandler
+from collections import OrderedDict
+from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+from telegram.ext import CommandHandler, CallbackQueryHandler, Filters
 from telegram.error import (TelegramError, TimedOut, NetworkError)
 
 class SpoilerController:
@@ -22,8 +23,7 @@ class SpoilerController:
            use a lot the job_queue mechanics 
            https://github.com/python-telegram-bot/python-telegram-bot/wiki/Extensions-%E2%80%93-JobQueue"""
         
-        # self.chat_ID = 257145716 # Private chat
-        self.chat_ID = config.chat_id # GeekStream chat
+        self.chat_ID = config.chat_id
         
         self.spoiler_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "spoilers.json")
         self.last_spoilers_review = ""
@@ -33,11 +33,14 @@ class SpoilerController:
         self.duplicate = {"sub_ids":[], "sub_titles":[]}
         
         # Add functionalities
-        updater.job_queue.run_repeating(self.spoilers_review_auto, interval=config.spoiler_review_timer, first=0)
+        # updater.job_queue.run_repeating(self.spoilers_review_auto, interval=config.spoiler_review_timer, first=0)
         updater.job_queue.run_repeating(self.reddit_crawler, interval=config.reddit_crawler_timer, first=0)
-        updater.job_queue.run_repeating(self.reset_duplicates, interval=86400*7, first=0) # Reset spoilers duplicate memory every week
+        updater.job_queue.run_repeating(self.reset_duplicates, interval=86400*7, first=86400*7) # Reset spoilers duplicate memory every week
         spoilers_review_handler = CommandHandler("spoilers_review", self.spoilers_review_manual)
         updater.dispatcher.add_handler(spoilers_review_handler)
+        
+        self.ranks = OrderedDict([('0', "\U0001F929"), ('1', "\U0001F600"), ('2', "\U0001F610"), ('3', "\U0001F922")])
+        updater.dispatcher.add_handler(CallbackQueryHandler(self.rank_spoiler_callback))
         
         logging.info("SpoilerController OK")
     
@@ -55,8 +58,10 @@ class SpoilerController:
     def reddit_crawler(self, bot, job):
         """Crawl submissions of a subreddit to find a spoiler between now and the last run
            Use this function with a job_queue run_repeating"""
-        
         end_time = time.time()
+        # Testing :
+        # for submission in [self.reddit.submission(id = "8rl2e0")]:
+            # if True:
         for submission in self.reddit.subreddit("magicTCG").new():
             if submission.created_utc > self.last_reddit_review and self.is_reddit_spoiler(submission) and not self.is_reddit_duplicate(submission):                
                 # Store submission id and transformed title for future duplicate detections
@@ -65,30 +70,56 @@ class SpoilerController:
                 
                 # Prepare message for chat
                 link = "https://www.reddit.com" + submission.permalink
-                message = "Je crois que j'ai trouvé un spoiler ! \U0001F916\U0001F50E\n<a href='{}'>{}</a>".format(link, submission.title)
+                message = "Je crois que j'ai trouvé un spoiler ! \U0001F916\U0001F50E\n<a href='{}'>{}</a>\nAvis:".format(link, submission.title)
+                keyboard = [[]]
+                for key, value in self.ranks.items():
+                    button = InlineKeyboardButton(value, callback_data=json.dumps({"rank":key,"users":[]}))
+                    keyboard[0].append(button)
+                reply_markup = InlineKeyboardMarkup(keyboard)
                 
+                bot.sendMessage(chat_id=self.chat_ID,
+                                text=message,
+                                parse_mode="HTML",
+                                reply_markup=reply_markup,
+                                disable_web_page_preview=True)
                 # If submission has preview image, send photo with caption of reddit link
                 if hasattr(submission, 'preview') :
-                    bot.sendMessage(chat_id=self.chat_ID,
-                                    text=message,
-                                    parse_mode="HTML",
-                                    disable_web_page_preview=True)
                     image_url = submission.preview.get("images", [])[0].get("source").get("url")
                     bot.sendPhoto(chat_id=self.chat_ID,
                                   photo=image_url,
-                                  disable_notification=True)
-                                  
-                # Otherwise, send only the submission link
-                else:
-                    bot.sendMessage(chat_id=self.chat_ID,
-                                    text=message,
-                                    parse_mode="HTML",
-                                    disable_web_page_preview=True)        
+                                  disable_notification=True)       
         
         # Reset the last review timestamp
         self.last_reddit_review = end_time
         return True
-
+    
+    def rank_spoiler_callback(self, bot, update):
+        query = update.callback_query
+        callback_data = json.loads(query.data)
+        user_id = query.from_user.id
+        
+        if query.message.entities and not user_id in callback_data["users"]:
+            callback_data["users"].append(user_id)
+            url = query.message.entities[0].url
+            initial_text = query.message.text.split("\n")
+            initial_text[1] = "<a href='{}'>{}</a>".format(url, initial_text[1])
+            
+            message = "\n".join(initial_text) + " " + self.ranks[callback_data["rank"]]
+            keyboard = [[]]
+            for key, value in self.ranks.items():
+                button = InlineKeyboardButton(value, callback_data=json.dumps({"rank":key,"users":callback_data["users"]}))
+                keyboard[0].append(button)
+            reply_markup = InlineKeyboardMarkup(keyboard)
+            bot.edit_message_text(text=message,
+                                  chat_id=query.message.chat_id,
+                                  message_id=query.message.message_id,
+                                  parse_mode="HTML",
+                                  reply_markup=reply_markup,
+                                  disable_web_page_preview=True,
+                                  disable_notification=True)
+        
+        return True
+                          
     def is_reddit_spoiler(self, submission):
         """Determine if a submission is a spoiler. For regex see : http://rubular.com/r/bgixv2J6yF"""
         
@@ -123,7 +154,7 @@ class SpoilerController:
             # recurring codes that don't correspond to a Magic set
             unwanted_codes = ["rpl","edh","tcc","psa","cfb","diy","d&d",
                               "b&r","rob","wmc","gds","abc","art","lsv",
-                              "til","fun","lrr","wip"]
+                              "til","fun","lrr", "wip"]
             
             # submission title contain 3 letters in between brackets that doesn't match an old set code
 
