@@ -3,7 +3,8 @@ import budgetModel as bm
 import botutils as bu
 import config
 import botFilters
-from myEnums import TransactionConvStates, ArchivingConvStates
+import myEnums
+from myEnums import ArchivingConvStates
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 
@@ -20,11 +21,12 @@ class BudgetController():
         # add_transaction
         self.moneylender, self.recipient, self.amount, self.reason, self.member_validation = {}, {}, None, "", []
         self.validate_transaction_handler = CallbackQueryHandler(self.send_transaction_confirmation)
-        self.transactionConvStates = TransactionConvStates
+        self.transactionConvStates = myEnums.TransactionConvStates
         self.transaction_conv_entry = CommandHandler(filters=chat_filter, command='new_debt', callback=self.start_transaction_conv)
         self.dispatcher.add_handler(self.get_transaction_conversation())
         
         # archive_transactions
+        self.archivingConvStates = myEnums.ArchivingConvStates
         self.arch_member_requester, self.arch_member_target, self.global_transaction = {}, {}, {}
         self.archiving_conv_entry = CommandHandler(filters=chat_filter, command='archive_debt', callback=self.start_arch_transactions)
         self.dispatcher.add_handler(self.get_archive_conversation())
@@ -42,7 +44,7 @@ class BudgetController():
             entry_points=[self.transaction_conv_entry],
 
             states={
-                self.transactionConvStates(1).name: [CallbackQueryHandler(self.select_transaction_amount)],
+                self.transactionConvStates(1).name: [CallbackQueryHandler(self.select_transaction_amount, pattern=r'^\d{9}$')],
                 self.transactionConvStates(2).name: [MessageHandler(Filters.text & dialog_info_filter, self.validate_transaction)],
                 self.transactionConvStates(3).name: [CallbackQueryHandler(self.send_transaction_confirmation)]
             },
@@ -68,16 +70,20 @@ class BudgetController():
                                   parse_mode="HTML",
                                   reply_markup=reply_markup,
                                   disable_notification=True)
-        
+        print("what")
+        print(self.transactionConvStates(1).name)
         return self.transactionConvStates(1).name
         
     def select_transaction_amount(self, bot, update):
         """Get the recipient id and ask for amount"""
         query = update.callback_query
+        print(query.data)
         self.recipient = bu.get_member_by_id(int(query.data), members=self.budgetModel.members)
         self.member_validation = [self.moneylender, self.recipient]
+        print(self.member_validation)
         
         message = "Combien te doit <a href='tg://user?id={}'>{}</a> et pour quel motif ? (Envoie moi le montant, suivi ou non d'un motif)".format(self.recipient["id"], self.recipient["first_name"])
+        print(message)
         bot.editMessageText(text=message,
                             chat_id=query.message.chat_id,
                             message_id=query.message.message_id,
@@ -94,7 +100,7 @@ class BudgetController():
             self.reason = " ".join(reply[1:])
             if not self.reason: self.reason = "NA"
             amount = reply[0].replace(",", ".").replace("€", "")
-            self.amount = round(int(amount), 2)
+            self.amount = round(float(amount), 2)
         except ValueError:
             message = "Je n'arrive pas à extraire, le montant et/ou le motif. Reformule moi ton message stp."
             bot.sendMessage(chat_id=config.chat_id,
@@ -158,6 +164,7 @@ class BudgetController():
                 # Cleanup for next conversation
                 self.reset_add_transaction_features()
                 self.dispatcher.remove_handler(self.validate_transaction_handler)
+                return ConversationHandler.END
 
         elif query.data == "KO" and query.from_user.id in member_validation_ids:
             # A member cancelled transaction
@@ -173,6 +180,7 @@ class BudgetController():
             # Cleanup for next conversation
             self.reset_add_transaction_features()
             self.dispatcher.remove_handler(self.validate_transaction_handler)
+            return ConversationHandler.END
         
         # else: Unauthorized user press button, do nothing.
         return True
@@ -189,8 +197,8 @@ class BudgetController():
             entry_points=[self.archiving_conv_entry],
 
             states={
-                ArchivingConvStates(1).name: [CallbackQueryHandler(self.verify_arch_transactions)],
-                ArchivingConvStates(2).name: [CallbackQueryHandler(self.send_archiving_confirmation)]
+                self.archivingConvStates(1).name: [CallbackQueryHandler(self.verify_arch_transactions)],
+                self.archivingConvStates(2).name: [CallbackQueryHandler(self.send_archiving_confirmation)]
             },
 
             fallbacks=[CommandHandler('stop', self.cancel)]
@@ -213,7 +221,7 @@ class BudgetController():
             reply_markup = InlineKeyboardMarkup(keyboard)
             message = "Avec quelle personne souhaites-tu archiver les dettes courantes ?"
             update.message.reply_text(message, parse_mode="HTML", reply_markup=reply_markup)
-            return ArchivingConvStates(1).name
+            return self.archivingConvStates(1).name
         
         else:
             message = "Personne ne te doit d'argent, tu ne peux donc pas archiver de dettes."
@@ -240,7 +248,7 @@ class BudgetController():
                             parse_mode="HTML",
                             disable_notification=True)
         
-        return ArchivingConvStates(2).name
+        return self.archivingConvStates(2).name
             
     def send_archiving_confirmation(self, bot, update):
         """Send resume of user actions after archiving"""

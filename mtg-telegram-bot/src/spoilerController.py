@@ -40,7 +40,7 @@ class SpoilerController:
         updater.dispatcher.add_handler(spoilers_review_handler)
         
         self.ranks = OrderedDict([('0', "\U0001F929"), ('1', "\U0001F600"), ('2', "\U0001F610"), ('3', "\U0001F922")])
-        updater.dispatcher.add_handler(CallbackQueryHandler(self.rank_spoiler_callback))
+        updater.dispatcher.add_handler(CallbackQueryHandler(self.rank_spoiler_callback, pattern=r'^\{(.*?)\}$'))
         
         logging.info("SpoilerController OK")
     
