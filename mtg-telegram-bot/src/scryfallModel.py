@@ -85,3 +85,25 @@ def get_card_by_name(name):
         return content
     else:
         return None
+        
+def get_random_card():
+    url = "https://api.scryfall.com/cards/random"
+    content = get_content(url)
+    if not content.get("object", "error") == "error": 
+        return content
+    else:
+        return {}
+        
+def get_card_names(card):
+    uri = card.get("uri", None)
+    if uri:
+        url = uri + "/fr"
+        content = get_content(url)
+    else:
+        return None
+    if not content.get("object", "error") == "error": 
+        card_names = [card.get("name", None), content.get("printed_name", None)]
+        return card_names
+    else:
+        card_names = [card.get("name", None)]
+        return card_names

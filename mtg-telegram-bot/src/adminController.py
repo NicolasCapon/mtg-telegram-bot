@@ -41,6 +41,5 @@ class AdminController:
     def detect_users_handler(self, bot, update):
         """Parse every message to detect new user"""
         user = update.message.from_user
-        print("test")
         if not user in self.members:
             botutils.register_user(user=user, ref_members=self.members)

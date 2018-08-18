@@ -28,6 +28,8 @@ def send_cards_photos(cardlist, bot, chat_id, disable_notification=True):
 			# Warning : Sleep can cause some timeout issues
             sleep(3)
         except:
+            logging.info("ERROR while sending album :")
+            logging.info(album)
             # If album can be sent try to send photos one by one.
             for card in album:
                 try:

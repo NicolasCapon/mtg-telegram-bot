@@ -41,3 +41,13 @@ class ChatFilter(BaseFilter):
         message doc : http://python-telegram-bot.readthedocs.io/en/stable/telegram.message.html?highlight=messag
         """
         return message.chat.id == config.chat_id
+        
+class ArtGameFilter(BaseFilter):
+    """Filter messages containing good answer"""
+    
+    def __init__(self, art_game):
+        self.art_game = art_game
+        
+    def filter(self, message):
+        """Check if message contain mystery card name"""
+        return self.art_game.is_right_answer(message.text, message.from_user)

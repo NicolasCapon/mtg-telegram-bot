@@ -1,6 +1,6 @@
 ﻿import os
 import config
-import spoilerController, messageController, cockatriceController, budgetController, adminController
+import spoilerController, messageController, cockatriceController, budgetController, adminController, gameController
 import logging
 from telegram.ext import Updater
 
@@ -21,6 +21,7 @@ def main():
     cockatriceController.CockatriceController(updater)
     spoilerController.SpoilerController(updater)
     budgetController.BudgetController(updater)
+    gameController.GameController(updater)
     
     # log all errors
     updater.dispatcher.add_error_handler(error)

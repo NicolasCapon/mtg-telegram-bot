@@ -4,7 +4,6 @@ import botutils as bu
 import config
 import botFilters
 import myEnums
-from myEnums import ArchivingConvStates
 from telegram import InlineKeyboardButton, InlineKeyboardMarkup
 from telegram.ext import ConversationHandler, CommandHandler, MessageHandler, CallbackQueryHandler, Filters
 
@@ -70,7 +69,7 @@ class BudgetController():
                                   parse_mode="HTML",
                                   reply_markup=reply_markup,
                                   disable_notification=True)
-        print("what")
+        
         print(self.transactionConvStates(1).name)
         return self.transactionConvStates(1).name
         
