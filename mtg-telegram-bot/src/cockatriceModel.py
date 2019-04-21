@@ -166,3 +166,43 @@ def add_card_to_xml(xml_tree, card):
             xml_loyalty.text = loyalty
 
     return True
+
+
+def create_deck(deck_name, main_cards=[], sb_cards=[], notes=""):
+    """Create a deck in .cod file (XML) for cockatrice based on list of cards"""
+    xml_tree = etree.Element("cockatrice_deck")
+    xml_tree.set("version", "1")
+
+    # Deck infos name and comments
+    deckname_tree = etree.SubElement(xml_tree, "deckname")
+    deckname_tree.text = deck_name
+    comments_tree = etree.SubElement(xml_tree, "comments")
+    infos = "Automatically created by mtg-telegram-bot at {}\n".format(datetime.datetime.now())
+    comments_tree.text = infos + notes
+
+    # Main deck cards
+    main_zone_tree = etree.SubElement(xml_tree, "zone")
+    main_zone_tree.set("name", "main")
+    for card in set(main_cards):
+        card_tree = etree.SubElement(main_zone_tree, "card")
+        card_tree.set("number", str(main_cards.count(card)))
+        card_tree.set("price", "0")
+        card_tree.set("name", card)
+
+    # Sideboard cards
+    sb_zone_tree = etree.SubElement(xml_tree, "zone")
+    sb_zone_tree.set("name", "side")
+    for card in set(sb_cards):
+        card_tree = etree.SubElement(sb_zone_tree, "card")
+        card_tree.set("number", str(sb_cards.count(card)))
+        card_tree.set("price", "0")
+        card_tree.set("name", card)
+
+    # Handle xml file
+    xml_filename = "{}.cod".format(deck_name)
+    xml_filepath = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "cockatrice",
+                                xml_filename)
+    tree = etree.ElementTree(xml_tree)
+    tree.write(open(xml_filepath, 'wb'), xml_declaration=True, encoding='UTF-8')
+
+    return xml_filepath

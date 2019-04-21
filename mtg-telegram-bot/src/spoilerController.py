@@ -5,6 +5,7 @@ import json
 import praw
 import logging
 import scryfallModel as scf
+import redditModel as rm
 import botutils as bu
 import datetime
 import config
@@ -28,7 +29,7 @@ class SpoilerController:
         self.spoiler_file = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "tools", "spoilers.json")
         self.last_spoilers_review = ""
               
-        self.reddit = self.log_to_reddit()
+        self.reddit = rm.log_to_reddit()
         self.last_reddit_review = time.time()
         self.duplicate = {"sub_ids":[], "sub_titles":[]}
         
@@ -43,17 +44,6 @@ class SpoilerController:
         updater.dispatcher.add_handler(CallbackQueryHandler(self.rank_spoiler_callback, pattern=r'^\{(.*?)\}$'))
         
         logging.info("SpoilerController OK")
-    
-    def log_to_reddit(self):
-        """Log to reddit API and return a subreddit object"""
-        
-        reddit = praw.Reddit(client_id=config.reddit_client_id,
-                             client_secret=config.reddit_client_secret,
-                             password=config.reddit_password,
-                             user_agent=config.reddit_user_agent,
-                             username=config.reddit_username)
-        
-        return reddit
                                     
     def reddit_crawler(self, bot, job):
         """Crawl submissions of a subreddit to find a spoiler between now and the last run
